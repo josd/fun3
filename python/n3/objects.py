@@ -2,6 +2,7 @@ import pdb
 from enum import Enum
 import string, random
 from n3.model import Model
+# from n3.ns import NS
 
 class Terms(Enum):
     IRI = 1
@@ -119,6 +120,9 @@ class Iri(ConcreteNode):
         return self.iri == other.iri
         
     def __str__(self):
+        # if NS.has(self.ns):
+        #     return f"{NS.get(self.ns).name}:{self.ln}"
+        # else:
         return f"<{self.iri}>"
     def __repr__(self):
         return self.__str__()
@@ -475,7 +479,7 @@ class GraphTerm(VarContainer):
         for t in self.model.triples(): yield from t._iter_recur_atomics(pos)
         
     def __str__(self):
-        return "{ "  + "".join([ str(t) for t in self.model.triples() ])[:-2] + " }"
+        return "{ "  + "\n".join([ str(t) for t in self.model.triples() ])[:-2] + " }"
     def __repr__(self):
         return self.__str__()
     
