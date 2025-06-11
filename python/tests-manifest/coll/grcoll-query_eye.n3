@@ -1,0 +1,3 @@
+@prefix : <http://example.org/> . 
+
+{ ?a :partLabels ( ?xl ?yl ) } => { ?a :partLabels ( ?xl ?yl ) } .

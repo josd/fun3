@@ -1,4 +1,5 @@
-import sys, os, argparse, logging
+import sys, os, argparse, logging, subprocess, re
+from pathlib import Path
 from rdflib import Graph, RDF, Namespace, compare, Literal
 from n3.to_py import run_py, save_py
 
@@ -7,6 +8,25 @@ MF = Namespace("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#")
 QT = Namespace("http://www.w3.org/2001/sw/DataAccess/tests/test-query#")
 N3T = Namespace("https://w3c.github.io/N3/tests/test.n3#")
 RDFT = Namespace("http://www.w3.org/ns/rdftest#")
+
+def runNSave(cmd, path, get_times=False):
+    # result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, error = [ b.decode('UTF-8') for b in process.communicate() ]
+    out = out.rstrip()
+    # print("out:", out)
+    # print("error:", error)
+        
+    with open(path, 'w') as fh:
+        fh.write(out)
+    
+    if "** ERROR **" in error:
+        print("ERROR:", error)
+        
+    elif get_times:
+        netw_time = int(re.search(r"networking \d+ \[msec cputime\] (\d+) \[msec walltime\]", error).group(1))
+        reas_time = int(re.search(r"reasoning \d+ \[msec cputime\] (\d+) \[msec walltime\]", error).group(1))
+        return netw_time, reas_time
 
 class Collection:
     def __init__(self, g, list):
@@ -35,7 +55,7 @@ def get_logger():
     
     return logger
 
-def run_manifest(path, test, logger, main=False):
+def run_manifest(path, test, system, logger, verbose, main=False):
     recur_total_num = 0; recur_noncompl_num = 0
     total_num = 0; noncompl_num = 0
     
@@ -43,11 +63,11 @@ def run_manifest(path, test, logger, main=False):
     g = Graph()
     g.parse(path, format='turtle')
 
-    if test is not None:
-        for t in g.triples((None, MF.name, Literal(test))):
-            return run_test(g, t[0])
-        logger.info(f"cannot find test with MF.name {test}")
-        return
+    # if test is not None:
+    #     for t in g.triples((None, MF.name, Literal(test))):
+    #         return run_test(g, t[0], system)
+    #     logger.info(f"cannot find test with MF.name {test}")
+    #     return
 
     for mf in g.subjects(RDF.type, MF.Manifest):
         # manifest files
@@ -55,9 +75,10 @@ def run_manifest(path, test, logger, main=False):
         if incl is not None:
             for el in Collection(g=g, list=incl):
                 path = str(el)
-                this_total_num, this_noncompl_num = run_manifest(path, test, logger)
+                this_total_num, this_noncompl_num = run_manifest(path, test, system, logger, verbose)
                 recur_total_num += this_total_num
                 recur_noncompl_num += this_noncompl_num
+                # break
         # test entries
         entr = g.value(mf, MF.entries)
         if entr is not None:
@@ -68,9 +89,10 @@ def run_manifest(path, test, logger, main=False):
                 if g.value(el, RDFT.approval) != RDFT.Approved:
                     logger.info(f"skipping unapproved test: {name}")
                     continue
-                is_compl = run_test(g, el)
+                is_compl = run_test(g, el, system, verbose)
                 if not is_compl: noncompl_num += 1
                 total_num += 1
+                # break
     
     recur_total_num += total_num
     recur_noncompl_num += noncompl_num
@@ -83,7 +105,7 @@ def run_manifest(path, test, logger, main=False):
     else:
         return ( recur_total_num, recur_noncompl_num )
 
-def run_test(g, test):    
+def run_test(g, test, system, verbose):    
     name = str(g.value(test, MF.name))
     action = g.value(test, MF.action)
     query = to_path(g.value(action, QT.query))
@@ -96,14 +118,43 @@ def run_test(g, test):
     
     # category = get_category(query)
     logger.info(f">> running test: {name}")
+
+    out = do_test(query, rules, data, system, verbose)
     
-    out = do_test(query, rules, data)
     compl = compare_with(out, ref)    
     
     logger.info("")
     return compl
 
-def do_test(query, rules, data):
+def do_test(query, rules, data, system, verbose):
+    match(system):
+        case 'eye':
+            return do_test_eye(query, rules, data, verbose)
+        case 'fun3':
+            return do_test_fun3(query, rules, data, verbose)
+
+def create_query_eye(query):
+    eye_query = os.path.join(Path(query).parent.absolute(), Path(query).stem + "_eye.n3")
+    with open(query, 'r') as query_fh, open(eye_query, 'w') as eye_query_fh:
+        file_str = query_fh.read()
+        tp_str = re.search(r"\n\s*([^@]*?\s+.*?\s+.*?)\s*\.\s*", file_str).group(1) # ugh
+        query_str = f"{{ {tp_str} }} => {{ {tp_str} }}"
+        file_str = file_str.replace(tp_str, query_str)
+        eye_query_fh.write(file_str)
+        return eye_query
+
+def do_test_eye(query, rules, data, verbose):    
+    query = create_query_eye(query)
+    
+    out = "tmp/eye.n3"
+    cmd = ["eye", rules, data, "--query", query, "--nope"]
+    if verbose:
+        print(" ".join(cmd))
+    runNSave(cmd, out)
+    with open(out, 'r') as fh:
+        return fh.read()
+
+def do_test_fun3(query, rules, data, verbose):
     with open(query, 'r') as query_fh, open(rules, 'r') as rules_fh, open(data, 'r') as data_fh:
         query_str = query_fh.read(); rules_str = rules_fh.read(); data_str = data_fh.read()
         return run_py(query_str, rules_str, data_str)#, print_code=True)
@@ -115,9 +166,11 @@ def compare_with(out_str, ref_path):
                 
 def compare_rdf_graphs(data1, label1, format1, data2, label2, format2):
         graph1 = Graph()
+        # print(data1)
         graph1.parse(data=data1, format=format1)
 
         graph2 = Graph()
+        # print(data2)
         graph2.parse(data=data2, format=format2)
         
         iso1 = compare.to_isomorphic(graph1)
@@ -145,14 +198,18 @@ def dump_graph(graph):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run test manifest.")
+    parser.add_argument('--system', help="System to run the tests (fun3 or eye).", required=True)
     parser.add_argument('--manifest', help="Path to the test manifest file.", required=True)
     parser.add_argument('--test', help="Label of test to be run", required=False)
+    parser.add_argument('--verbose', help="Verbose output", required=False, default=False)
     #parser.add_argument('--ordered', help='Consider result ordering during comparison', action="store_true")
 
     args = parser.parse_args()
+    system = args.system
     path = args.manifest
     test = args.test
+    verbose = args.verbose
     
     logger = get_logger()
     
-    run_manifest(path, test, logger, main=True)
+    run_manifest(path, test, system, logger, verbose, main=True)

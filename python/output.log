@@ -1,5 +1,5 @@
-INFO:__main__:>> loading manifest: tests/manifest.ttl <<
-INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests/simple/manifest-simple.ttl <<
+INFO:__main__:>> loading manifest: tests-manifest/manifest.ttl <<
+INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests-manifest/simple/manifest-simple.ttl <<
 INFO:__main__:>> running test: only_data_find
 INFO:__main__:compliant
 INFO:__main__:
@@ -20,7 +20,7 @@ INFO:__main__:compliant
 INFO:__main__:
 INFO:__main__:# total: 6; # non-compliant: 0
 
-INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests/misc/manifest-misc.ttl <<
+INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests-manifest/misc/manifest-misc.ttl <<
 INFO:__main__:skipping unapproved test: unbound_univ
 INFO:__main__:>> running test: empty_body
 INFO:__main__:compliant
@@ -30,7 +30,7 @@ INFO:__main__:compliant
 INFO:__main__:
 INFO:__main__:# total: 2; # non-compliant: 0
 
-INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests/coll/manifest-coll.ttl <<
+INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests-manifest/coll/manifest-coll.ttl <<
 INFO:__main__:>> running test: grcoll
 INFO:__main__:compliant
 INFO:__main__:
@@ -57,7 +57,7 @@ INFO:__main__:compliant
 INFO:__main__:
 INFO:__main__:# total: 8; # non-compliant: 0
 
-INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests/dupl_vars/manifest-dupl_vars.ttl <<
+INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests-manifest/dupl_vars/manifest-dupl_vars.ttl <<
 INFO:__main__:>> running test: dupl_vars_1_1
 INFO:__main__:compliant
 INFO:__main__:
@@ -75,9 +75,9 @@ INFO:__main__:compliant
 INFO:__main__:
 INFO:__main__:# total: 5; # non-compliant: 0
 
-INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests/recur/manifest-recur.ttl <<
+INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests-manifest/recur/manifest-recur.ttl <<
 INFO:__main__:skipping unapproved test: recur_1
-INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests/builtins/manifest-builtins.ttl <<
+INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests-manifest/builtins/manifest-builtins.ttl <<
 INFO:__main__:>> running test: math_sum
 INFO:__main__:compliant
 INFO:__main__:
@@ -119,7 +119,7 @@ INFO:__main__:compliant
 INFO:__main__:
 INFO:__main__:# total: 13; # non-compliant: 0
 
-INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests/bnodes/manifest-bnodes.ttl <<
+INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests-manifest/bnodes/manifest-bnodes.ttl <<
 INFO:__main__:>> running test: bnode_1
 INFO:__main__:compliant
 INFO:__main__:

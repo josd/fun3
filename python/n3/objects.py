@@ -1,6 +1,4 @@
-import pdb
 from enum import Enum
-import string, random
 from n3.model import Model
 # from n3.ns import NS
 
@@ -161,7 +159,7 @@ class Literal(ConcreteNode):
             value = quote + value + quote
             if self.lng is not None:
                 suffix = f"@{self.lng}"
-            elif self.dt is not None:
+            elif self.dt is not None and self.dt != Iri("http://www.w3.org/2001/XMLSchema#string"):
                 suffix = f"^^{self.dt}"
         return str(value) + (suffix if suffix is not None else "")
     def __repr__(self):
