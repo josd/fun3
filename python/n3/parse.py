@@ -624,10 +624,10 @@ class n3ParseResult:
 
 import time
 def parse_n3_file(path):
-    start = time.time()
+    # start = time.time()
     string = open(path, 'r').read()
-    end = time.time()
-    print("read time:", (end-start))
+    # end = time.time()
+    # print("read time:", (end-start))
     
     return parse_n3(string)
 

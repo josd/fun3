@@ -24,7 +24,7 @@
         qt:data <unbound_univ-ref.n3>
     ] ;
     rdfs:comment "Unbound universals returned by query" ;
-    rdft:approval rdft:Proposed ;
+    rdft:approval rdft:Approved ;
     test:options [ test:conclusions "true"^^xsd:boolean ] .
 
 :empty_body

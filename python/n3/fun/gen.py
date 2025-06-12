@@ -21,6 +21,9 @@ class InputData:
         self.path = path
         self.data_str = data_str
         
+    def __str__(self):
+        return f"path={self.path} ; data_str={self.data_str}"
+        
 
 class GenError(Exception):
     pass
@@ -189,9 +192,9 @@ class RuleProcessor_UniqueVars:
                             zip(unique_vars, range(self.var_cnt, len(unique_vars)+self.var_cnt)) }
         
         # rename vars in head & body
-        head.replace_recur_vars(unique_vars)
+        head.replace_recur_vars_map(unique_vars)
         if body.type() == Terms.GRAPH:
-            body.replace_recur_vars(unique_vars)
+            body.replace_recur_vars_map(unique_vars)
         
         # update var count
         self.var_cnt += len(unique_vars)
@@ -200,7 +203,7 @@ class RuleProcessor_UniqueVars:
         # but can clash with s/p/o vars returned by data.find
         if body.type() == Terms.GRAPH:
             ren_bnodes = { bn: BlankNode(f"{bn}_bn") for bn in body.recur_vars(types=(Terms.BNODE,)) }
-            body.replace_recur_vars(ren_bnodes, types=(Terms.BNODE,))
+            body.replace_recur_vars_map(ren_bnodes, types=(Terms.BNODE,))
 
 
 class UCmd(Enum):
@@ -361,16 +364,24 @@ class GenPython:
         return self.bld.module(self.code_imports + self.code_body)
 
     def __gen_data_python(self, data):
-        self.code_imports.append(self.bld.import_from('n3.parse', ['parse_n3']))
-       
-        if data.data_str is None:
-            raise "not support file loads yet"
-
-        assn = self.bld.assn('data', 
-            self.bld.attr_ref_expr(
-                self.bld.fn_call(self.bld.ref('parse_n3'), [ self.bld.cnst(data.data_str)] ),
-                'data'
-            ))
+        if data.path is not None:
+            import_fn = 'parse_n3_file'
+            assn = self.bld.assn('data', 
+                self.bld.attr_ref_expr(
+                    self.bld.fn_call(self.bld.ref('parse_n3_file'), [ self.bld.cnst(str(data.path.resolve()))] ),
+                    'data'
+                ))
+        elif data.data_str is not None:
+            import_fn = 'parse_n3'
+            assn = self.bld.assn('data', 
+                self.bld.attr_ref_expr(
+                    self.bld.fn_call(self.bld.ref('parse_n3'), [ self.bld.cnst(data.data_str)] ),
+                    'data'
+                ))
+        else:
+            raise "require a data path or string to load from"
+        
+        self.code_imports.append(self.bld.import_from('n3.parse', [import_fn]))
         
         self.code_body.append(assn)
         

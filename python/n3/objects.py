@@ -310,24 +310,38 @@ class VarContainer(Container):
     
     def instantiate(self, concr_terms):
         inst = self.copy_deep()
-        inst.replace_recur_vars(concr_terms)
+        
+        # rules may have returned ANY for one of the variables
+        # (if it was not bound in the query)
+        for key, term in concr_terms.items():
+            if term.is_any():
+                concr_terms[key] = BlankNode()
+            # ANY's may also be nested in collections or graph terms
+            elif isinstance(term, VarContainer):
+                term.replace_recur_vars(lambda id: BlankNode(),types=(Terms.ANY,))
+        
+        inst.replace_recur_vars_map(concr_terms, types=(Terms.VAR,))
         
         return inst
     
-    def replace_recur_vars(self, repl_terms, types=(Terms.VAR,)):
+    def replace_recur_vars_map(self, repl_map, types=(Terms.VAR,)):
+        self.replace_recur_vars(lambda id: repl_map[id], types)
+    
+    def replace_recur_vars(self, repl_fn, types=(Terms.VAR,)):
         """
             Replaces (nested) variables in this VarContainer.
             
             Args:
                 types: the types of variables you're interested in (var, bnode)
-                repl_terms (dictionary): keys = variables to replace; values = new terms
+                repl_fn (function)
         """
         for pos, term in self._iter_recur_atomics(()):
-            if term.type() in types and term.var_id in repl_terms: 
+            if term.type() in types:
+                repl = repl_fn(term.var_id)
                 # get closest parent container & index of var therein
                 parent = pos[-1][1]; i = pos[-1][0]
                 # replace with new term
-                parent[i] = repl_terms[term.var_id]
+                parent[i] = repl
     
     def vars(self, types=(Terms.VAR,), get_id=True):
         """

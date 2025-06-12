@@ -155,9 +155,7 @@ def do_test_eye(query, rules, data, verbose):
         return fh.read()
 
 def do_test_fun3(query, rules, data, verbose):
-    with open(query, 'r') as query_fh, open(rules, 'r') as rules_fh, open(data, 'r') as data_fh:
-        query_str = query_fh.read(); rules_str = rules_fh.read(); data_str = data_fh.read()
-        return run_py(query_str, rules_str, data_str)#, print_code=True)
+    return run_py(Path(query), Path(rules), Path(data), print_code=verbose)
 
 def compare_with(out_str, ref_path):
     with open(ref_path, 'r') as ref_fh:

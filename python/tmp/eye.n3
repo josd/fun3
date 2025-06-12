@@ -1,8 +1,8 @@
 # Processed by EYE v11.19.7 (2025-06-01)
-# eye --quiet /Users/wvw/git/n3/fun3/python/tests-manifest/bnodes/bnode_4.n3 /Users/wvw/git/n3/fun3/python/tests-manifest/bnodes/person_ca_eur.n3 --query /Users/wvw/git/n3/fun3/python/tests-manifest/bnodes/bnode_4-query_eye.n3 --nope
+# eye --quiet /Users/wvw/git/n3/fun3/python/tests-manifest/misc/unbound_univ.n3 /Users/wvw/git/n3/fun3/python/tests-manifest/misc/unbound_univ-data.n3 --query /Users/wvw/git/n3/fun3/python/tests-manifest/misc/unbound_univ-query_eye.n3 --nope
 
 @prefix : <http://example.org/>.
 
-:soc a :Canadian.
-# 2025-06-11T12:50:56.842Z in=20 out=1 ent=1 step=1 brake=1 inf=37734 sec=0.026 inf/sec=1451308
+:soc :label _:sk_0.
+# 2025-06-12T12:55:30.176Z in=6 out=1 ent=1 step=1 brake=1 inf=29119 sec=0.026 inf/sec=1119962
 # ENDS

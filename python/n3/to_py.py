@@ -1,27 +1,36 @@
+from pathlib import Path
 from ast import dump, unparse, parse
 from n3.parse import parse_n3
 from n3.objects import ANY
 from n3.fun.gen import gen_py, InputData, QueryFn
 from n3.fun.utils import unique_sorted
 
-def run_py(query_str, rules_str, data_str, print_code=False):
-    #print(query_str, "\n", rules_str, "\n", data_str)
+def __proc_inputs(query, rules, data):
+    query_str = query.open('r').read() if isinstance(query, Path) else query
     query = parse_n3(query_str).data.triple_at(0)
+    
+    rules_str = rules.open('r').read() if isinstance(rules, Path) else rules
     rules = parse_n3(rules_str).rules
     
-    mod = gen_py(rules, query, InputData(data_str=data_str), call_query=False)
+    data = InputData(path=data) if isinstance(data, Path) else InputData(data_str=data)    
+    
+    # print(query); print(rules); print(data)
+    return (query, rules, data)
+
+def run_py(query, rules, data, print_code=False):
+    query, rules, data = __proc_inputs(query, rules, data)
+    
+    mod = gen_py(rules, query, data, call_query=False)
     if print_code:
         print(unparse(mod) + "\n\n")
     
-    exec_ret = __get_exec(mod, InputData(data_str=data_str))
+    exec_ret = __get_exec(mod)
     return __exec_query(exec_ret, query)
        
-def save_py(query_str, rules_str, data_str, out_path, print_code=False):
-    #print(query_str, "\n", rules_str, "\n", data_str)
-    query = parse_n3(query_str).data.triple_at(0)
-    rules = parse_n3(rules_str).rules
+def save_py(query, rules, data, out_path, print_code=False):
+    query, rules, data = __proc_inputs(query, rules, data)
     
-    mod = gen_py(rules, query, InputData(data_str=data_str))
+    mod = gen_py(rules, query, data)
     unparsed = unparse(mod)
     if print_code:
         print(unparsed)
@@ -29,11 +38,8 @@ def save_py(query_str, rules_str, data_str, out_path, print_code=False):
     with open(out_path, 'w') as fh:
         fh.write(unparsed)
        
-def __get_exec(mod, in_data):
+def __get_exec(mod):
     mod_code = compile(mod, "<fun3>", "exec")
-    
-    global data
-    data = parse_n3(in_data.data_str).data
     
     new_refs = {}
     exec(mod_code, globals(), new_refs)

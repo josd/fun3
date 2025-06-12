@@ -23,7 +23,17 @@ def is_numeric(lit):
             # TODO: https://www.w3.org/TR/xmlschema-2/#built-in-datatypes
             
     return False
-                
+
+# TODO do this based on types of operands
+def xsd_num_type(num):
+    match (type(num)):
+        case 'int':
+            return xsdNs.int
+        case 'float':
+            return xsdNs.float
+        case 'complex':
+            return xsdNs.double
+
 def divide_buckets(coll, buckets, buck_no=0, start_idx=0, result=[]):
     if buck_no == len(buckets): # out of buckets
         if start_idx == len(coll): # at end of list

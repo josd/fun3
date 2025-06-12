@@ -1,5 +1,5 @@
 from n3.objects import Collection, Literal
-from n3.fun.builtins.utils import is_numeric
+from n3.fun.builtins.utils import is_numeric, xsd_num_type
 
 def math_sum(s, o, ctu):
     if not isinstance(s, Collection):
@@ -17,4 +17,5 @@ def math_sum(s, o, ctu):
         if total == o.value:
             ctu(s, o) # o is concrete
     else:
-        ctu(s, total) # o is variable
+        # TODO proper type juggling
+        ctu(s, Literal(total, xsd_num_type(total))) # o is variable
