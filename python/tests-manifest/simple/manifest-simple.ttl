@@ -1,3 +1,4 @@
+@prefix dc: <http://purl.org/dc/terms/> .
 @prefix : <http://example.org/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix test:    <https://w3c.github.io/N3/tests/test.n3#> .
@@ -9,7 +10,7 @@
 
 <>  rdf:type mf:Manifest ;
     rdfs:label "simple test cases" ;
-    mf:entries ( :only_data_find :call_rules :call_rules2 :call_rules3 :call_rules4 :call_rules5 ) .
+    mf:entries ( :only_data_find :call_rules :call_rules2 :call_rules3 :call_rules4 :call_rules5 :backward ) .
 
 :only_data_find 
     a   test:TestN3Query ;
@@ -109,5 +110,23 @@
         qt:data <call_rules5-ref.n3>
     ] ;
     rdfs:comment "Call other rules (2 other rules; mixed level of specificity)" ;
+    rdft:approval rdft:Approved ;
+    test:options [ test:conclusions "true"^^xsd:boolean ] .
+
+
+:backward
+    a   test:TestN3Query ;
+    a   test:TestN3Positive ;
+    mf:name "backward" ;
+    mf:action [ 
+        qt:query <backward-query.n3> ;
+        test:rules <backward.n3> ;
+        qt:data <empty.ttl>
+    ] ;
+    mf:result [
+        qt:data <backward-ref.n3>
+    ] ;
+    rdfs:comment "" ;
+    dc:source <https://github.com/eyereasoner/eye/blob/master/reasoning/backward/> ;
     rdft:approval rdft:Approved ;
     test:options [ test:conclusions "true"^^xsd:boolean ] .

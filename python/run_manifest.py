@@ -44,7 +44,10 @@ class Collection:
         return ret;
 
 def to_path(el):
-    return str(el)[len("file://"):]
+    if el is None:
+        return None
+    else:
+        return str(el)[len("file://"):]
 
 def get_logger():
     logpath = "output.log"
@@ -55,7 +58,7 @@ def get_logger():
     
     return logger
 
-def run_manifest(path, test, system, logger, verbose, main=False):
+def run_manifest(path, test, system, what, logger, verbose, main=False):
     recur_total_num = 0; recur_noncompl_num = 0
     total_num = 0; noncompl_num = 0
     
@@ -75,7 +78,7 @@ def run_manifest(path, test, system, logger, verbose, main=False):
         if incl is not None:
             for el in Collection(g=g, list=incl):
                 path = str(el)
-                this_total_num, this_noncompl_num = run_manifest(path, test, system, logger, verbose)
+                this_total_num, this_noncompl_num = run_manifest(path, test, system, what, logger, verbose)
                 recur_total_num += this_total_num
                 recur_noncompl_num += this_noncompl_num
                 # break
@@ -89,49 +92,55 @@ def run_manifest(path, test, system, logger, verbose, main=False):
                 if g.value(el, RDFT.approval) != RDFT.Approved:
                     logger.info(f"skipping unapproved test: {name}")
                     continue
-                is_compl = run_test(g, el, system, verbose)
+                is_compl = run_test(g, el, system, what, verbose)
                 if not is_compl: noncompl_num += 1
                 total_num += 1
                 # break
     
-    recur_total_num += total_num
-    recur_noncompl_num += noncompl_num
+    if what == 'run':
+        recur_total_num += total_num
+        recur_noncompl_num += noncompl_num
+        
+        if total_num > 0:
+            logger.info(f"# total: {total_num}; # non-compliant: {noncompl_num}\n")
+        
+        if main:
+            logger.info(f"# all total: {recur_total_num}; # all non-compliant: {recur_noncompl_num}\n")
     
-    if total_num > 0:
-        logger.info(f"# total: {total_num}; # non-compliant: {noncompl_num}\n")
-    
-    if main:
-        logger.info(f"# all total: {recur_total_num}; # all non-compliant: {recur_noncompl_num}\n")
-    else:
-        return ( recur_total_num, recur_noncompl_num )
+    return ( recur_total_num, recur_noncompl_num )
 
-def run_test(g, test, system, verbose):    
+def run_test(g, test, system, what, verbose):    
     name = str(g.value(test, MF.name))
     action = g.value(test, MF.action)
     query = to_path(g.value(action, QT.query))
     rules = to_path(g.value(action, N3T.rules))
     data = to_path(g.value(action, QT.data))
-    # ordered = str(g.value(action, QT.ordered))
     
     result = g.value(test, MF.result)
     ref = to_path(g.value(result, QT.data))
     
-    # category = get_category(query)
-    logger.info(f">> running test: {name}")
+    match (what):
+        case 'run':
+            logger.info(f">> running test: {name}")
+        case 'generate':
+            logger.info(f">> generating code: {name}")
 
-    out = do_test(query, rules, data, system, verbose)
+    out = do_test(query, rules, data, system, what, verbose)
     
-    compl = compare_with(out, ref)    
+    if what == 'run':
+        compl = compare_with(out, ref)        
+        logger.info("")
+    else:
+        compl = False
     
-    logger.info("")
     return compl
 
-def do_test(query, rules, data, system, verbose):
+def do_test(query, rules, data, system, what, verbose):
     match(system):
         case 'eye':
-            return do_test_eye(query, rules, data, verbose)
+            return do_test_eye(query, rules, data, what, verbose)
         case 'fun3':
-            return do_test_fun3(query, rules, data, verbose)
+            return do_test_fun3(query, rules, data, what, verbose)
 
 def create_query_eye(query):
     eye_query = os.path.join(Path(query).parent.absolute(), Path(query).stem + "_eye.n3")
@@ -143,7 +152,10 @@ def create_query_eye(query):
         eye_query_fh.write(file_str)
         return eye_query
 
-def do_test_eye(query, rules, data, verbose):    
+def do_test_eye(query, rules, data, what, verbose):   
+    if what != 'run':
+        raise "only supporting 'run' for eye"
+     
     query = create_query_eye(query)
     
     out = "tmp/eye.n3"
@@ -154,8 +166,26 @@ def do_test_eye(query, rules, data, verbose):
     with open(out, 'r') as fh:
         return fh.read()
 
-def do_test_fun3(query, rules, data, verbose):
-    return run_py(Path(query), Path(rules), Path(data), print_code=verbose)
+def add_rel_import(path):
+    with open(path, 'r+') as fh:
+        code = fh.read()
+        code = """import sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent.resolve()))
+""" + code
+        fh.seek(0)
+        fh.write(code)        
+        fh.truncate()
+
+def do_test_fun3(query, rules, data, what, verbose):
+    match(what):
+        case 'run':
+            return run_py(Path(query), Path(rules), Path(data), print_code=verbose)
+
+        case 'generate':
+            rules_path = Path(rules)
+            out_path = Path(rules_path.parent, rules_path.stem + ".py").absolute()
+            save_py(Path(query), Path(rules), Path(data), out_path, print_code=verbose)
+            add_rel_import(out_path)
 
 def compare_with(out_str, ref_path):
     with open(ref_path, 'r') as ref_fh:
@@ -196,18 +226,19 @@ def dump_graph(graph):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run test manifest.")
-    parser.add_argument('--system', help="System to run the tests (fun3 or eye).", required=True)
+    parser.add_argument('--system', help="System to run the tests (fun3|eye).", required=True)
+    parser.add_argument('--what', help="What to do (generate|run).", required=False, default="run")
     parser.add_argument('--manifest', help="Path to the test manifest file.", required=True)
     parser.add_argument('--test', help="Label of test to be run", required=False)
     parser.add_argument('--verbose', help="Verbose output", required=False, default=False)
-    #parser.add_argument('--ordered', help='Consider result ordering during comparison', action="store_true")
 
     args = parser.parse_args()
     system = args.system
+    what = args.what
     path = args.manifest
     test = args.test
     verbose = args.verbose
     
     logger = get_logger()
     
-    run_manifest(path, test, system, logger, verbose, main=True)
+    run_manifest(path, test, system, what, logger, verbose, main=True)

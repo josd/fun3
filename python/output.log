@@ -18,7 +18,10 @@ INFO:__main__:
 INFO:__main__:>> running test: call_rules5
 INFO:__main__:compliant
 INFO:__main__:
-INFO:__main__:# total: 6; # non-compliant: 0
+INFO:__main__:>> running test: backward
+INFO:__main__:compliant
+INFO:__main__:
+INFO:__main__:# total: 7; # non-compliant: 0
 
 INFO:__main__:>> loading manifest: file:///Users/wvw/git/n3/fun3/python/tests-manifest/misc/manifest-misc.ttl <<
 INFO:__main__:>> running test: unbound_univ
@@ -136,5 +139,5 @@ INFO:__main__:compliant
 INFO:__main__:
 INFO:__main__:# total: 4; # non-compliant: 0
 
-INFO:__main__:# all total: 39; # all non-compliant: 0
+INFO:__main__:# all total: 40; # all non-compliant: 0
 

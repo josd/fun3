@@ -1,5 +1,6 @@
 from enum import Enum
 from multidict import MultiDict
+from pathlib import Path
 from n3.fun.utils import unique_sorted
 from n3.fun.py_build import PyBuilder, IdxedTerm
 from n3.objects import Var, BlankNode, ANY, Triple, Iri, Literal, GraphTerm, Terms

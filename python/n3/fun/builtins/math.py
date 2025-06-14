@@ -1,6 +1,14 @@
 from n3.objects import Collection, Literal
 from n3.fun.builtins.utils import is_numeric, xsd_num_type
 
+def math_greaterThan(s, o, ctu):
+    if not (isinstance(s, Literal) and is_numeric(s)) or \
+        not (isinstance(o, Literal) and is_numeric(o)):
+        return
+    
+    if s.value > o.value:
+        ctu(s, o)
+
 def math_sum(s, o, ctu):
     if not isinstance(s, Collection):
         return
