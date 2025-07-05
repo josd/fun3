@@ -269,6 +269,7 @@ class UnifyTerms:
         else:
             if match_term.is_concrete():
                 if has_runtime_val:
+                    # (compare also takes care of checking variable's type, length etc)
                     yield from self.__unify_op(UCmd.CMP, UDir.TO_MATCH, UTime.RUNTIME, clause_term, match_term)
                 
                 # possible that runtime var is ANY (i.e., variable in query), so also get result from match

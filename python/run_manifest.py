@@ -1,3 +1,10 @@
+# python run_manifest.py --system eye --manifest tests-manifest/coll/manifest-coll.ttl
+# python run_manifest.py --system eye --manifest tests-manifest/coll/manifest-coll.ttl --test grcoll 
+
+# python run_manifest.py --system fun3 --manifest tests-manifest/coll/manifest-coll.ttl
+# python run_manifest.py --system fun3 --what generate --manifest tests-manifest/coll/manifest-coll.ttl
+#   e.g., python tests-manifest/coll/grcoll.py
+
 import sys, os, argparse, logging, subprocess, re
 from pathlib import Path
 from rdflib import Graph, RDF, Namespace, compare, Literal

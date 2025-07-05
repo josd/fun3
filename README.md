@@ -105,6 +105,35 @@ So, by analogy, bnodes should be treated as concrete terms in the rule head.
 - If the clause term is a bnode, it is simply treated as a universal variable.
 
 # TODO
-to_py: accept data paths (instead of just strings)
-unbound universals being returned
+√ to_py: also accept data paths (instead of just strings)
+
+√ unbound universals being returned
+
 duplicate statements being returned
+
+graph terms
+https://github.com/william-vw/jen3/blob/master/testing/N3/jen3_reason/misc/formula1.n3
+
+clause re-ordering 
+check jen3 - 1/ optimization (compile-time), 2/ expressivity (compile &/ runtime?)
+e.g., https://github.com/william-vw/jen3/blob/master/testing/N3/jen3_reason/misc/clause-reorder1.n3
+!! https://en.wikipedia.org/wiki/Coroutine
+
+(simple) jen3 tests
+https://github.com/william-vw/jen3/blob/master/testing/N3/jen3_reason/misc/rule1.n3
+https://github.com/william-vw/jen3/blob/master/testing/N3/jen3_reason/misc/rule2.n3
+https://github.com/william-vw/jen3/blob/master/testing/N3/jen3_reason/misc/rule3.n3
+https://github.com/william-vw/jen3/blob/master/testing/N3/jen3_reason/misc/rule4.n3
+https://github.com/william-vw/jen3/tree/master/testing/N3/jen3_reason/list
+
+remaining builtins
+https://github.com/william-vw/jen3/tree/master/testing/N3/jen3_reason
+
+universals in pulled-in containers
+will require runtime library for unification
+https://github.com/william-vw/jen3/blob/master/testing/N3/jen3_reason/misc/nested-clauses1.n3
+https://github.com/william-vw/jen3/blob/master/testing/N3/jen3_reason/misc/rule-data-var.n3
+https://github.com/william-vw/jen3/blob/master/testing/N3/jen3_reason/misc/pull_in_bnodes.n3
+
+meta reasoning
+https://github.com/william-vw/jen3/blob/master/testing/N3/jen3_reason/misc/infer-rules.n3
