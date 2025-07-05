@@ -184,9 +184,9 @@ class RuleProcessor_UniqueVars:
         triple_it = head.recur_vars()
         if body.type() == Terms.GRAPH:
             triple_it = chain(triple_it, body.recur_vars())
-            
+        
         # use dict to have 1 entry per variable
-        # (head & body can share same variables)
+        # (head & body can share same variables, of course)
         unique_vars = { v:0 for v in triple_it }
         # for each unique var in head+body, assign unique value "v_i" based on var count
         unique_vars = { v:Var(f"{v}_{i}") for v,i in 
@@ -252,7 +252,7 @@ class UnifyTerms:
             if match_term.is_concrete():
                 # look for variables inside ungrounded collections
                 if (clause_term.type()==Terms.COLLECTION and match_term.type()==Terms.COLLECTION) and \
-                    (not clause_term.is_grounded() or not match_term.is_grounded()): 
+                    (not clause_term.is_grounded() or not match_term.is_grounded()):
                         
                         if len(clause_term) == len(match_term):
                             for idx in range(len(clause_term)):
@@ -429,7 +429,7 @@ class GenPython:
     
     def __gen_rule(self, rule):
         head_triple = rule.head.model.triple_at(0)
-        # other rules can only pass values for universals (VAR)
+        # other rules can only pass values for universals (VAR, _no_ BNODE)
         head_vars = unique_sorted(head_triple.recur_vars(types=(Terms.VAR,), get_id=True))
         rule.set_input_vars(head_vars)
         # also, only universals from head will be available in body

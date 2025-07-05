@@ -39,7 +39,7 @@ if clause is ungrcoll, match is var:
 --- 
 
 NOTES 
-- Any class
+- "Any" class
 avoids dealing with None's:
     it matches everything
     it can be deconstructed at infinitum into Any's

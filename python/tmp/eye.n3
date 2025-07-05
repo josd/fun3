@@ -1,8 +1,5 @@
 # Processed by EYE v11.19.7 (2025-06-01)
-# eye --quiet /Users/wvw/git/n3/fun3/python/tests-manifest/misc/unbound_univ.n3 /Users/wvw/git/n3/fun3/python/tests-manifest/misc/unbound_univ-data.n3 --query /Users/wvw/git/n3/fun3/python/tests-manifest/misc/unbound_univ-query_eye.n3 --nope
+# eye --quiet /Users/wvw/git/n3/fun3/python/tests-manifest/gterms/graph1.n3 /Users/wvw/git/n3/fun3/python/tests-manifest/gterms/graph1-data.n3 --query /Users/wvw/git/n3/fun3/python/tests-manifest/gterms/graph1-query_eye.n3 --nope
 
-@prefix : <http://example.org/>.
-
-:soc :label _:sk_0.
-# 2025-06-12T12:55:30.176Z in=6 out=1 ent=1 step=1 brake=1 inf=29119 sec=0.026 inf/sec=1119962
+# 2025-07-05T07:45:36.298Z in=6 out=0 ent=0 step=0 brake=1 inf=31385 sec=0.024 inf/sec=1307708
 # ENDS

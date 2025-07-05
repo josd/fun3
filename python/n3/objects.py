@@ -250,7 +250,7 @@ class Container(ConcreteNode):
         """
         Recursively yields all (nested) atomic elements in the container.
         The function calls _iter_atomic for each element in the container, which:
-        - If the element is itself a collection, calls this function on it recursively
+        - If the element is itself a container, calls this function on it recursively
         - Else, returns the element.
         
         Args:
@@ -479,24 +479,25 @@ class Collection(VarContainer):
     
 class GraphTerm(VarContainer):
     
-    # model
+    # triples
     
-    def __init__(self, model=None):
-        self.model = model if model is not None else Model()
+    def __init__(self, triples=None):
+        self.__triples = triples if triples is not None else []
+        # self.model = model if model is not None else Model()
         
     def type(self):
         return Terms.GRAPH
     
     def _iter_recur_atomics(self, pos):
-        for t in self.model.triples(): yield from t._iter_recur_atomics(pos)
+        for t in self.__triples: yield from t._iter_recur_atomics(pos)
         
     def __str__(self):
-        return "{ "  + "\n".join([ str(t) for t in self.model.triples() ])[:-2] + " }"
+        return "{ "  + "\n".join([ str(t) for t in self.__triples ])[:-2] + " }"
     def __repr__(self):
         return self.__str__()
     
-    def copy_deep(self): # TODO
-        pass
+    def copy_deep(self):
+        return GraphTerm([ triple.copy_deep() for triple in self.__triples ])
 
 
 class Triple(VarContainer):
