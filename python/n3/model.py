@@ -2,8 +2,8 @@ import pandas as pd
 
 class Model:
     
-    def __init__(self):
-        self.__triples = []
+    def __init__(self, triples=None):
+        self.__triples = triples if triples is not None else []
         
     def add(self, triple):
         self.__triples.append(triple)
@@ -45,7 +45,12 @@ class Model:
         #     # if state.stop: break
         #     # print("t -", t)
         #     ctu(t.s, t.p, t.o)
-        
+    
+    def __eq__(self, other):
+        if not isinstance(other, Model):
+            return False # NotImplemented
+        return self.__triples == other.__triples
+    
     def __str__(self):
         return "\n".join([ str(t) for t in self.__triples ])
     def __repr__(self):

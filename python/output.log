@@ -1,8 +1,2 @@
-INFO:__main__:>> loading manifest: tests-manifest/coll/manifest-coll.ttl <<
-INFO:__main__:>> running test: grcoll
-INFO:__main__:compliant
-INFO:__main__:
-INFO:__main__:# total: 1; # non-compliant: 0
-
-INFO:__main__:# all total: 1; # all non-compliant: 0
-
+INFO:__main__:>> loading manifest: tests-manifest/gterm/manifest-gterm.ttl <<
+INFO:__main__:>> generating code: ggraph1

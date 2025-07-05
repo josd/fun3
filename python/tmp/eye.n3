@@ -1,8 +1,8 @@
 # Processed by EYE v11.19.7 (2025-06-01)
-# eye --quiet /Users/wvw/git/n3/fun3/python/tests-manifest/coll/grcoll.n3 /Users/wvw/git/n3/fun3/python/tests-manifest/coll/grcoll-data.n3 --query /Users/wvw/git/n3/fun3/python/tests-manifest/coll/grcoll-query_eye.n3 --nope
+# eye --quiet /Users/wvw/git/n3/fun3/python/tests-manifest/gterm/ggraph1.n3 /Users/wvw/git/n3/fun3/python/tests-manifest/gterm/ggraph1-data.n3 --query /Users/wvw/git/n3/fun3/python/tests-manifest/gterm/ggraph1-query_eye.n3 --nope
 
 @prefix : <http://example.org/>.
 
-:robocop :partLabels ("man" "machine").
-# 2025-07-05T08:19:26.847Z in=7 out=1 ent=1 step=1 brake=1 inf=32375 sec=0.025 inf/sec=1295000
+:robocop :partLabel "machine".
+# 2025-07-05T08:34:31.809Z in=6 out=1 ent=1 step=1 brake=1 inf=32183 sec=0.027 inf/sec=1191963
 # ENDS

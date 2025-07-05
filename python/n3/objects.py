@@ -511,8 +511,13 @@ class GraphTerm(Container):
     
     # triples
     
-    def __init__(self, model=None):
-        self.model = model if model is not None else Model()
+    def __init__(self, model=None, triples=None):
+        if model is not None:
+            self.model = model
+        elif triples is not None:
+            self.model = Model(triples)
+        else:
+            self.model = Model()
         
     def type(self):
         return Terms.GRAPH
@@ -525,8 +530,23 @@ class GraphTerm(Container):
     def __repr__(self):
         return self.__str__()
     
+    def __eq__(self, other):
+        if not other.is_concrete() or other.is_any():
+            return True
+        if not isinstance(other, GraphTerm):
+            return False # NotImplemented
+        return self.model == other.model
+        
+    def __str__(self):
+        if len(self.model) == 0:
+            return "{}"
+        else:
+            return "{ " + " ".join(str(e) for e in self.model.triples()) + " }"
+    def __repr__(self):
+        return self.__str__()
+    
     def copy_deep(self):
-        return GraphTerm([ t.copy_deep() for t in self.model.triples() ])
+        return GraphTerm(triples=[ t.copy_deep() for t in self.model.triples() ])
 
 
 class Triple(VarComposite):
@@ -557,14 +577,19 @@ class Triple(VarComposite):
             case 0: return self.s
             case 1: return self.p
             case 2: return self.o
-            case _: print("inconceivable!"); return None
+            case _: raise "inconceivable!"
     
     def __setitem__(self, key, value):
         match key:
             case 0: self.s = value
             case 1: self.p = value
             case 2: self.o = value
-            case _: print("inconceivable!");
+            case _: raise "inconceivable!"
+    
+    def __eq__(self, other):
+        if not isinstance(other, Triple):
+            return False # NotImplemented
+        return self.s == other.s and self.p == other.p and self.o == other.o
     
     def __str__(self):
         return f"{self.s} {self.p} {self.o} ."

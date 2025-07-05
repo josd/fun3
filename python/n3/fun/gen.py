@@ -9,6 +9,7 @@ from n3.ns import logNs, swapNs, xsdNs
 from itertools import chain
 from ast import dump, unparse
 
+
 def gen_py(rules, query, data, call_query=True):
     gen = GenPython()
     return gen.gen_python(rules, query, data, call_query)
@@ -80,7 +81,7 @@ class QueryFn(RuleFn):
     __query_fn_name = "query"
     
     def __init__(self, triple):
-        graph = GraphTerm(Model().add(triple))
+        graph = GraphTerm(triples=[triple])
         super().__init__(-1, graph, graph, fn_name=QueryFn.fn_name())
     
     @staticmethod
@@ -153,7 +154,7 @@ class FnEntry:
         self.rule_fn = rule_fn
 
     def __str__(self):
-        return f"<{self.rule_fn.name} - {str(self.rule)}>"
+        return f"<{self.rule_fn} - {str(self.rule)}>"
     def __repr__(self):
         return self.__str__()
     
@@ -272,13 +273,13 @@ class UnifyTerms:
                     # (compare also takes care of checking variable's type, length etc)
                     yield from self.__unify_op(UCmd.CMP, UDir.TO_MATCH, UTime.RUNTIME, clause_term, match_term)
                 
-                # possible that runtime var is ANY (i.e., variable in query), so also get result from match
+                # (possible that runtime var is ANY (i.e., variable in query), so also get result from match)
                 yield from self.__unify_op(UCmd.PASS, UDir.FROM_MATCH, UTime.NOW, match_term, clause_term)
                 
                 if match_term.type() == Terms.COLLECTION and not match_term.is_grounded():
                     yield from self.__unify_ungrcoll(UCmd.PASS, UDir.TO_MATCH, clause_term, match_term)
             else:
-                # idem
+                # (idem)
                 if has_runtime_val:
                     yield from self.__unify_op(UCmd.PASS, UDir.TO_MATCH, UTime.RUNTIME, clause_term, match_term)
 
@@ -388,7 +389,7 @@ class GenPython:
         self.code_body.append(assn)
         
     def __gen_rule_python(self, rules, query, call_query):
-        self.code_imports.append(self.bld.import_from('n3.objects', ['Iri', 'Var', 'Literal', 'Collection', 'ANY', 'Terms', 'Triple']))
+        self.code_imports.append(self.bld.import_from('n3.objects', ['ANY', 'Terms', 'Iri', 'Var', 'Literal', 'Collection', 'GraphTerm', 'Triple']))
         self.code_imports.append(self.bld.import_from('n3.ns', ['NS']))
         
         query_fn = self.__gen_rule(QueryFn(query))
@@ -511,7 +512,7 @@ class GenPython:
 
     def __gen_find_rules(self, clause, ctu_call):
         matches = self.__fn_idx.find(clause.tp)
-            
+        
         for match in matches:
             match_tp = match.rule.s.model.triple_at(0)
             fn_call = FnCall(self.bld.ref(match.rule_fn))

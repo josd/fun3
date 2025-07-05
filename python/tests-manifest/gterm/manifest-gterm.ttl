@@ -9,20 +9,36 @@
 
 <>  rdf:type mf:Manifest ;
     rdfs:label "graph term test cases" ;
-    mf:entries ( :graph1 ) .
+    mf:entries ( :ggraph1 :ungraph1 ) .
 
-:graph1
+:ggraph1
     a   test:TestN3Query ;
     a   test:TestN3Positive ;
-    mf:name "graph1" ;
+    mf:name "ggraph1" ;
     mf:action [ 
-        qt:query <graph1-query.n3> ;
-        test:rules <graph1.n3> ;
-        qt:data <graph1-data.n3>
+        qt:query <ggraph1-query.n3> ;
+        test:rules <ggraph1.n3> ;
+        qt:data <ggraph1-data.n3>
     ] ;
     mf:result [
-        qt:data <graph1-ref.n3>
+        qt:data <ggraph1-ref.n3>
     ] ;
-    rdfs:comment "..." ;
+    rdfs:comment "Both gterms are grounded" ;
+    rdft:approval rdft:Approved ;
+    test:options [ test:conclusions "true"^^xsd:boolean ] .
+
+:ungraph1
+    a   test:TestN3Query ;
+    a   test:TestN3Positive ;
+    mf:name "ungraph1" ;
+    mf:action [ 
+        qt:query <ungraph1-query.n3> ;
+        test:rules <ungraph1.n3> ;
+        qt:data <ungraph1-data.n3>
+    ] ;
+    mf:result [
+        qt:data <ungraph1-ref.n3>
+    ] ;
+    rdfs:comment "Both gterms are ungrounded" ;
     rdft:approval rdft:Approved ;
     test:options [ test:conclusions "true"^^xsd:boolean ] .

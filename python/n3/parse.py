@@ -91,7 +91,7 @@ class state:
         return ret
     
     def start_formula(self):
-        self.formula = GraphTerm(self.data)
+        self.formula = GraphTerm(model=self.data)
         self.var_sink = self.formula
         
     def end_formula(self):
