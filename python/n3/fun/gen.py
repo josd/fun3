@@ -251,13 +251,13 @@ class UnifyTerms:
         
         if clause_term.is_concrete():
             if match_term.is_concrete():
-                # look for variables inside ungrounded collections
-                if (clause_term.type()==Terms.COLLECTION and match_term.type()==Terms.COLLECTION) and \
+                # look for variables inside ungrounded collections & graph terms
+                if (clause_term.is_container() and match_term.is_container()) and \
                     (not clause_term.is_grounded() or not match_term.is_grounded()):
                         
-                        if len(clause_term) == len(match_term):
-                            for idx in range(len(clause_term)):
-                                yield from self.unify(clause, clause_term[idx], match_term[idx])
+                        if clause_term.type() == match_term.type() and len(clause_term) == len(match_term):
+                            for clause_term2, match_term2 in zip(clause_term.iter_terms(), match_term.iter_terms()):
+                                yield from self.unify(clause, clause_term2, match_term2)
                             return
 
                 yield from self.__unify_op(UCmd.CMP, UDir.TO_MATCH, UTime.NOW, clause_term, match_term)
@@ -286,7 +286,7 @@ class UnifyTerms:
                 yield from self.__unify_op(UCmd.PASS, UDir.FROM_MATCH, UTime.RUNTIME, match_term, clause_term)
         
     def __unify_ungrcoll(self, cmd, dir, var_term, coll_term):
-        for atomic in coll_term._iter_recur_atomics(()):
+        for atomic in coll_term.iter_atomics():
             atomic_term = atomic[1]
             
             positions = atomic[0]

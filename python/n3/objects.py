@@ -269,7 +269,11 @@ class BlankNode(VariableNode):
     
 class Composite(ConcreteNode):
     
-    # (implemented by subclasses)
+    # called by others (start point)
+    def iter_atomics(self):
+        return self._iter_recur_atomics(())
+    
+    # implemented by subclasses
     def _iter_recur_atomics(self, pos):
         """
         Recursively yields all (nested) atomic elements in the container.
@@ -291,9 +295,9 @@ class Composite(ConcreteNode):
         """
         pass
     
+    # convenience method
     # (called by subclasses)
-    # iterate over the atomic elements of this container
-    def _iter_atomic(self, pos, term):
+    def _iter_recur_term(self, pos, term):
         """
         Utility function for iterating over container elements. Given an element:
         - If the element is itself a container, call the _iter_recur_atomics function on it recursively
@@ -359,7 +363,7 @@ class VarComposite(Composite):
                 types: the types of variables you're interested in (var, bnode)
                 repl_fn (function)
         """
-        for pos, term in self._iter_recur_atomics(()):
+        for pos, term in self.iter_atomics():
             if term.type() in types:
                 repl = repl_fn(term.var_id)
                 # get closest parent container & index of var therein
@@ -398,8 +402,8 @@ class VarComposite(Composite):
         
         # return self.__vars
         
-        # return [ (v.name if get_id else v) for _, _, v in self._iter_recur_atomics() if v.type() == Terms.VAR ]
-        # for _, _, v in self._iter_recur_atomics():
+        # return [ (v.name if get_id else v) for _, _, v in self.iter_atomics() if v.type() == Terms.VAR ]
+        # for _, _, v in self.iter_atomics():
         #     if v.type() == Terms.VAR: yield v
         
         return [ v for _, v in self.__yield_recur_vars(types, get_id) ]
@@ -435,7 +439,7 @@ class VarComposite(Composite):
                 1: (nested) var or its name
         """
                 
-        for pos, v in self._iter_recur_atomics(()):
+        for pos, v in self.iter_atomics():
             if v.type() in types: yield (pos, (v.var_id if get_id else v))
 
 
@@ -443,6 +447,10 @@ class Container(VarComposite):
     
     def is_container(self):
         return True
+    
+    # implemented by subclasses
+    def iter_terms(self):
+        pass
     
 
 class Collection(Container):
@@ -458,17 +466,20 @@ class Collection(Container):
     def idx_val(self):
         return self.__to_nested_tuples()
     
-    def append(self, coll):
-        return Collection(self.__elements + coll.__elements)
-    
     def __to_nested_tuples(self):
         return tuple(e.__to_nested_tuples() if e.type() == Terms.COLLECTION else e.idx_val() for e in self.__elements)
+    
+    def append(self, coll):
+        return Collection(self.__elements + coll.__elements)
     
     def _parsed_el(self, el):
         self.__elements.append(el)
     
+    def iter_terms(self):
+        return self.__iter__()
+    
     def _iter_recur_atomics(self, pos):
-        for i, el in enumerate(self): yield from self._iter_atomic(pos + ((i, self),), el)
+        for i, el in enumerate(self): yield from self._iter_recur_term(pos + ((i, self),), el)
     
     def __iter__(self):
         return self.__elements.__iter__()
@@ -522,13 +533,18 @@ class GraphTerm(Container):
     def type(self):
         return Terms.GRAPH
     
+    def iter_terms(self):
+        for t in self:
+            yield from t.__iter__()
+    
     def _iter_recur_atomics(self, pos):
         for t in self.model.triples(): yield from t._iter_recur_atomics(pos)
-        
-    def __str__(self):
-        return "{ "  + "\n".join([ str(t) for t in self.model.triples() ])[:-2] + " }"
-    def __repr__(self):
-        return self.__str__()
+    
+    def __iter__(self):
+        return self.model.__iter__()
+    
+    def __len__(self):
+        return len(self.model)
     
     def __eq__(self, other):
         if not other.is_concrete() or other.is_any():
@@ -541,7 +557,7 @@ class GraphTerm(Container):
         if len(self.model) == 0:
             return "{}"
         else:
-            return "{ " + " ".join(str(e) for e in self.model.triples()) + " }"
+            return "{ " + " ".join(str(e) for e in self.model.triples())[:-2] + " }"
     def __repr__(self):
         return self.__str__()
     
@@ -564,7 +580,7 @@ class Triple(VarComposite):
         return any(r.type() == Terms.GRAPH for r in self)
     
     def _iter_recur_atomics(self, pos):
-        for i, term in enumerate(self): yield from self._iter_atomic(pos + ((i, self),), term)
+        for i, term in enumerate(self): yield from self._iter_recur_term(pos + ((i, self),), term)
     
     def __len__(self):
         return 3

@@ -14,6 +14,9 @@ class Model:
         # self.__triples = None
         return self
         
+    def __iter__(self):
+        return self.__triples.__iter__()
+        
     def __len__(self):
         return len(self.__triples)
     
