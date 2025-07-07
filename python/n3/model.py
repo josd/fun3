@@ -23,6 +23,9 @@ class Model:
     def triple_at(self, i):
         return self.__triples[i]
     
+    def contains(self, t):
+        return t in self.__triples
+    
     def triples(self):
         return self.__triples
     

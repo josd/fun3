@@ -80,9 +80,8 @@ class QueryFn(RuleFn):
     
     __query_fn_name = "query"
     
-    def __init__(self, triple):
-        graph = GraphTerm(triples=[triple])
-        super().__init__(-1, graph, graph, fn_name=QueryFn.fn_name())
+    def __init__(self, query):
+        super().__init__(-1, query, query, fn_name=QueryFn.fn_name())
     
     @staticmethod
     def fn_name(rule_no=0, clause_no=0):
@@ -265,8 +264,8 @@ class UnifyTerms:
             else:
                 yield from self.__unify_op(UCmd.PASS, UDir.TO_MATCH, UTime.NOW, clause_term, match_term)
                 
-                if clause_term.type() == Terms.COLLECTION and not clause_term.is_grounded():
-                    yield from self.__unify_ungrcoll(UCmd.PASS, UDir.FROM_MATCH, match_term, clause_term)
+                if clause_term.is_container() and not clause_term.is_grounded():
+                    yield from self.__unify_var_ungrcont(UCmd.PASS, UDir.FROM_MATCH, match_term, clause_term)
         else:
             if match_term.is_concrete():
                 if has_runtime_val:
@@ -276,8 +275,8 @@ class UnifyTerms:
                 # (possible that runtime var is ANY (i.e., variable in query), so also get result from match)
                 yield from self.__unify_op(UCmd.PASS, UDir.FROM_MATCH, UTime.NOW, match_term, clause_term)
                 
-                if match_term.type() == Terms.COLLECTION and not match_term.is_grounded():
-                    yield from self.__unify_ungrcoll(UCmd.PASS, UDir.TO_MATCH, clause_term, match_term)
+                if match_term.is_container() and not match_term.is_grounded():
+                    yield from self.__unify_var_ungrcont(UCmd.PASS, UDir.TO_MATCH, clause_term, match_term)
             else:
                 # (idem)
                 if has_runtime_val:
@@ -285,15 +284,14 @@ class UnifyTerms:
 
                 yield from self.__unify_op(UCmd.PASS, UDir.FROM_MATCH, UTime.RUNTIME, match_term, clause_term)
         
-    def __unify_ungrcoll(self, cmd, dir, var_term, coll_term):
+    def __unify_var_ungrcont(self, cmd, dir, var_term, coll_term):
         for atomic in coll_term.iter_atomics():
             atomic_term = atomic[1]
             
-            positions = atomic[0]
-            idxes = [ position[0] for position in positions ]
-            
             # only need values for variables
             if not atomic_term.is_concrete():
+                positions = atomic[0]
+                idxes = [ position[0] for position in positions ]
                 yield from self.__unify_op(cmd, dir, UTime.RUNTIME, IdxedTerm(var_term, idxes), atomic_term)
 
     def __unify_op(self, cmd, dir, time, term1, term2):
@@ -358,6 +356,8 @@ class GenPython:
         }
 
     def gen_python(self, rules, query, data, call_query):
+        query = GraphTerm(triples=[query])
+        self.__process_query(query)
         self.__process_rules(rules)
         
         self.code_imports = []; self.code_body = []
@@ -400,6 +400,10 @@ class GenPython:
         
         if call_query:
             self.__gen_call_rule(query_fn)
+        
+    def __process_query(self, query):
+        query_rule = Triple(query, Iri(logNs['implies']), Literal(True, xsdNs['boolean']))
+        self.__rule_renameVars.process(-1, query_rule)
         
     def __process_rules(self, rules):
         """

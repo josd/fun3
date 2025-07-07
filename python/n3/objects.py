@@ -538,13 +538,16 @@ class GraphTerm(Container):
             yield from t.__iter__()
     
     def _iter_recur_atomics(self, pos):
-        for t in self.model.triples(): yield from t._iter_recur_atomics(pos)
+        for i, t in enumerate(self.model.triples()): yield from t._iter_recur_atomics(pos + ((i, self),))
     
     def __iter__(self):
         return self.model.__iter__()
     
     def __len__(self):
         return len(self.model)
+    
+    def __getitem__(self, key):
+        return self.model.triple_at(key)
     
     def __eq__(self, other):
         if not other.is_concrete() or other.is_any():

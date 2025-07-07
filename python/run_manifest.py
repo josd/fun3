@@ -1,14 +1,16 @@
 # python run_manifest.py --system eye --manifest tests-manifest/gterm/manifest-gterm.ttl
 # python run_manifest.py --system eye --manifest tests-manifest/gterm/manifest-gterm.ttl --test ggraph1
 
-# python run_manifest.py --system fun3 --manifest tests-manifest/gterm/manifest-gterm.ttl
-# python run_manifest.py --system fun3 --what generate --manifest tests-manifest/gterm/manifest-gterm.ttl
+# python run_manifest.py --system fun3 --what run --manifest tests-manifest/gterm/manifest-gterm.ttl
+# python run_manifest.py --system fun3 --what gen --manifest tests-manifest/gterm/manifest-gterm.ttl
+# python run_manifest.py --system fun3 --what gen --manifest tests-manifest/gterm/manifest-gterm.ttl --test ggraph1
 #   e.g., python tests-manifest/gterm/ggraph1.py
 
 import sys, os, argparse, logging, subprocess, re
 from pathlib import Path
 from rdflib import Graph, RDF, Namespace, compare, Literal
 from n3.to_py import run_py, save_py
+from n3.parse import parse_n3
 
 
 MF = Namespace("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#")
@@ -129,10 +131,10 @@ def run_test(g, test, system, what, verbose):
     match (what):
         case 'run':
             logger.info(f">> running test: {name}")
-        case 'generate':
+        case 'gen':
             logger.info(f">> generating code: {name}")
 
-    out = do_test(query, rules, data, system, what, verbose)
+    out = do_test(name, query, rules, data, system, what, verbose)
     
     if what == 'run':
         compl = compare_with(out, ref)        
@@ -142,12 +144,12 @@ def run_test(g, test, system, what, verbose):
     
     return compl
 
-def do_test(query, rules, data, system, what, verbose):
+def do_test(name, query, rules, data, system, what, verbose):
     match(system):
         case 'eye':
             return do_test_eye(query, rules, data, what, verbose)
         case 'fun3':
-            return do_test_fun3(query, rules, data, what, verbose)
+            return do_test_fun3(name, query, rules, data, what, verbose)
 
 def create_query_eye(query):
     eye_query = os.path.join(Path(query).parent.absolute(), Path(query).stem + "_eye.n3")
@@ -176,21 +178,23 @@ def do_test_eye(query, rules, data, what, verbose):
 def add_rel_import(path):
     with open(path, 'r+') as fh:
         code = fh.read()
-        code = """import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent.resolve()))
+        # noqa = no quality assurance, makes linters skip that line or something
+        code = """import sys # noqa
+import pathlib # noqa
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent.resolve())) # noqa
 """ + code
         fh.seek(0)
-        fh.write(code)        
+        fh.write(code)
         fh.truncate()
 
-def do_test_fun3(query, rules, data, what, verbose):
+def do_test_fun3(name, query, rules, data, what, verbose):
     match(what):
         case 'run':
             return run_py(Path(query), Path(rules), Path(data), print_code=verbose)
 
         case 'generate':
             rules_path = Path(rules)
-            out_path = Path(rules_path.parent, rules_path.stem + ".py").absolute()
+            out_path = Path(rules_path.parent, f"{name}.py").absolute() #rules_path.stem + ".py").absolute()
             save_py(Path(query), Path(rules), Path(data), out_path, print_code=verbose)
             add_rel_import(out_path)
 
@@ -198,43 +202,68 @@ def compare_with(out_str, ref_path):
     with open(ref_path, 'r') as ref_fh:
         ref_str = ref_fh.read()
         return compare_rdf_graphs(out_str, "out", 'n3', ref_str, "ref", 'n3')
-                
+
 def compare_rdf_graphs(data1, label1, format1, data2, label2, format2):
-        graph1 = Graph()
-        # print(data1)
-        graph1.parse(data=data1, format=format1)
+    model1 = parse_n3(data1).data
+    model2 = parse_n3(data2).data
+    
+    compliant = True
+    for t in model1.triples():
+        if t not in model2.triples():
+            logger.info(f"different in {label1}:")
+            logger.info(t)
+            compliant = False
+            
+    for t in model2.triples():
+        if t not in model1.triples():
+            logger.info(f"different in {label2}:")
+            logger.info(t)
+            compliant = False
+            
+    if compliant:
+        logger.info("compliant")
+        return True
+    else:
+        logger.info("non compliant")
+        return False
 
-        graph2 = Graph()
-        # print(data2)
-        graph2.parse(data=data2, format=format2)
+# unfortunately, does not work for triples with graph terms
+# def compare_rdf_graphs(data1, label1, format1, data2, label2, format2):
+#         graph1 = Graph()
+#         # print(data1)
+#         graph1.parse(data=data1, format=format1)
+
+#         graph2 = Graph()
+#         # print(data2)
+#         graph2.parse(data=data2, format=format2)
         
-        iso1 = compare.to_isomorphic(graph1)
-        iso2 = compare.to_isomorphic(graph2)
+#         iso1 = compare.to_isomorphic(graph1)
+#         iso2 = compare.to_isomorphic(graph2)
 
-        if iso1 == iso2:
-            logger.info("compliant")
-            return True
-        else:
-            logger.error("non compliant")
-            in_both, in_first, in_second = compare.graph_diff(graph1, graph2)
-            if len(in_both) > 0:
-                logger.info("same triples in both files:")
-                logger.info(dump_graph(in_both))
-            if len(in_first) > 0:
-                logger.info(f"different in {label1}:")
-                logger.info(dump_graph(in_first))
-            if len(in_second) > 0:
-                logger.info(f"different in {label2}:")
-                logger.info(dump_graph(in_second))
-                return False
+#         if iso1 == iso2:
+#             logger.info("compliant")
+#             return True
+#         else:
+#             logger.error("non compliant")
+#             in_both, in_first, in_second = compare.graph_diff(graph1, graph2)
+#             if len(in_both) > 0:
+#                 logger.info("same triples in both files:")
+#                 logger.info(dump_graph(in_both))
+#             if len(in_first) > 0:
+#                 logger.info(f"different in {label1}:")
+#                 logger.info(dump_graph(in_first))
+#             if len(in_second) > 0:
+#                 logger.info(f"different in {label2}:")
+#                 logger.info(dump_graph(in_second))
+#                 return False
 
-def dump_graph(graph):
-    return graph.serialize(format='n3').strip()
+# def dump_graph(graph):
+#     return graph.serialize(format='n3').strip()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run test manifest.")
     parser.add_argument('--system', help="System to run the tests (fun3|eye).", required=True)
-    parser.add_argument('--what', help="What to do (generate|run).", required=False, default="run")
+    parser.add_argument('--what', help="What to do (gen|run).", required=False, default="run")
     parser.add_argument('--manifest', help="Path to the test manifest file.", required=True)
     parser.add_argument('--test', help="Label of test to be run", required=False)
     parser.add_argument('--verbose', help="Verbose output", required=False, default=False)

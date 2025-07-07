@@ -1,7 +1,8 @@
-import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent.resolve()))
+import sys # noqa
+import pathlib # noqa
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent.resolve())) # noqa
 from n3.parse import parse_n3_file
-from n3.objects import Iri, Var, Literal, Collection, ANY, Terms, Triple
+from n3.objects import ANY, Terms, Iri, Var, Literal, Collection, GraphTerm, Triple
 from n3.ns import NS
 from n3.fun.builtins.list import list_append
 data = parse_n3_file('/Users/wvw/git/n3/fun3/python/tests-manifest/builtins/list_append_2-data.n3').data
