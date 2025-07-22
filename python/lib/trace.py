@@ -1,8 +1,3 @@
-# copy-paste to top of file to debug
-# then, simply run in usual way
-
-import sys
-
 indent_level = 0
 def trace_calls(frame, event, arg):
     global indent_level
@@ -16,5 +11,3 @@ def trace_calls(frame, event, arg):
             indent_level -= 1
             print('  ' * indent_level + f"Return: {frame.f_code.co_name} (Returned: {arg})")
     return trace_calls
-
-sys.settrace(trace_calls)

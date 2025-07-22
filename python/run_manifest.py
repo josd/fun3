@@ -67,7 +67,7 @@ def get_logger():
     
     return logger
 
-def run_manifest(path, test, system, what, logger, verbose, main=False):
+def run_manifest(path, test, system, what, logger, trace, verbose, main=False):
     recur_total_num = 0; recur_noncompl_num = 0
     total_num = 0; noncompl_num = 0
     
@@ -87,7 +87,7 @@ def run_manifest(path, test, system, what, logger, verbose, main=False):
         if incl is not None:
             for el in Collection(g=g, list=incl):
                 path = str(el)
-                this_total_num, this_noncompl_num = run_manifest(path, test, system, what, logger, verbose)
+                this_total_num, this_noncompl_num = run_manifest(path, test, system, what, logger, trace, verbose)
                 recur_total_num += this_total_num
                 recur_noncompl_num += this_noncompl_num
         # test entries
@@ -100,7 +100,7 @@ def run_manifest(path, test, system, what, logger, verbose, main=False):
                 if g.value(el, RDFT.approval) != RDFT.Approved:
                     logger.info(f"skipping unapproved test: {name}")
                     continue
-                is_compl = run_test(g, el, system, what, verbose)
+                is_compl = run_test(g, el, system, what, trace, verbose)
                 if not is_compl: noncompl_num += 1
                 total_num += 1
     
@@ -116,7 +116,7 @@ def run_manifest(path, test, system, what, logger, verbose, main=False):
     
     return ( recur_total_num, recur_noncompl_num )
 
-def run_test(g, test, system, what, verbose):    
+def run_test(g, test, system, what, trace, verbose):    
     name = str(g.value(test, MF.name))
     action = g.value(test, MF.action)
     query = to_path(g.value(action, QT.query))
@@ -132,7 +132,7 @@ def run_test(g, test, system, what, verbose):
         case 'gen':
             logger.info(f">> generating code: {name}")
 
-    out = do_test(name, query, rules, data, system, what, verbose)
+    out = do_test(name, query, rules, data, system, what, trace, verbose)
     
     if what == 'run':
         compl = compare_with(out, ref)        
@@ -142,12 +142,12 @@ def run_test(g, test, system, what, verbose):
     
     return compl
 
-def do_test(name, query, rules, data, system, what, verbose):
+def do_test(name, query, rules, data, system, what, trace, verbose):
     match(system):
         case 'eye':
             return do_test_eye(query, rules, data, what, verbose)
         case 'fun3':
-            return do_test_fun3(name, query, rules, data, what, verbose)
+            return do_test_fun3(name, query, rules, data, what, trace, verbose)
 
 def create_query_eye(query):
     eye_query = os.path.join(Path(query).parent.absolute(), Path(query).stem + "_eye.n3")
@@ -173,19 +173,7 @@ def do_test_eye(query, rules, data, what, verbose):
     with open(out, 'r') as fh:
         return fh.read()
 
-def add_rel_import(path):
-    with open(path, 'r+') as fh:
-        code = fh.read()
-        # noqa = no quality assurance, makes linters skip that line or something
-        code = """import sys # noqa
-import pathlib # noqa
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent.resolve())) # noqa
-""" + code
-        fh.seek(0)
-        fh.write(code)
-        fh.truncate()
-
-def do_test_fun3(name, query, rules, data, what, verbose):
+def do_test_fun3(name, query, rules, data, what, trace, verbose):
     match(what):
         case 'run':
             return run_py(Path(query), Path(rules), Path(data), print_code=verbose)
@@ -194,6 +182,8 @@ def do_test_fun3(name, query, rules, data, what, verbose):
             rules_path = Path(rules)
             out_path = Path(rules_path.parent, f"{name}.py").absolute() #rules_path.stem + ".py").absolute()
             save_py(Path(query), Path(rules), Path(data), out_path, print_code=verbose)
+            if trace:
+                add_tracer(out_path)
             add_rel_import(out_path)
 
 def compare_with(out_str, ref_path):
@@ -224,6 +214,32 @@ def compare_rdf_graphs(data1, label1, format1, data2, label2, format2):
     else:
         logger.info("non compliant")
         return False
+
+def add_tracer(path):
+    with open(path, 'r+') as fh:
+        code = fh.read()
+        # noqa = no quality assurance, makes linters skip that line or something
+        # (avoids vscode to move it to wrong place)
+        code = """from lib.trace import trace_calls
+sys.settrace(trace_calls)
+
+""" + code
+        fh.seek(0)
+        fh.write(code)
+        fh.truncate()
+
+def add_rel_import(path):
+    with open(path, 'r+') as fh:
+        code = fh.read()
+        code = """import sys # noqa
+import pathlib # noqa
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent.resolve())) # noqa
+
+""" + code
+        fh.seek(0)
+        fh.write(code)
+        fh.truncate()
+    
 
 # unfortunately, does not work for triples with graph terms
 # def compare_rdf_graphs(data1, label1, format1, data2, label2, format2):
@@ -264,6 +280,7 @@ if __name__ == '__main__':
     parser.add_argument('--what', help="What to do (gen|run).", required=False, default="run")
     parser.add_argument('--manifest', help="Path to the test manifest file.", required=True)
     parser.add_argument('--test', help="Label of test to be run", required=False)
+    parser.add_argument('--trace', help="Whether to include tracing", required=False, default=False)
     parser.add_argument('--verbose', help="Verbose output", required=False, default=False)
 
     args = parser.parse_args()
@@ -271,8 +288,9 @@ if __name__ == '__main__':
     what = args.what
     path = args.manifest
     test = args.test
+    trace = args.trace
     verbose = args.verbose
     
     logger = get_logger()
     
-    run_manifest(path, test, system, what, logger, verbose, main=True)
+    run_manifest(path, test, system, what, logger, trace, verbose, main=True)

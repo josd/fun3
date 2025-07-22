@@ -109,10 +109,10 @@ So, by analogy, bnodes should be treated as concrete terms in the rule head.
 
 √ unbound universals being returned
 
-duplicate statements being returned
-
-graph terms
+√ graph terms
 https://github.com/william-vw/jen3/blob/master/testing/N3/jen3_reason/misc/formula1.n3
+
+duplicate statements being returned
 
 clause re-ordering 
 check jen3 - 1/ optimization (compile-time), 2/ expressivity (compile &/ runtime?)

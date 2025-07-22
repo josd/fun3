@@ -1,6 +1,7 @@
 import sys # noqa
 import pathlib # noqa
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent.resolve())) # noqa
+
 from n3.parse import parse_n3_file
 from n3.objects import ANY, Terms, Iri, Var, Literal, Collection, GraphTerm, Triple
 from n3.ns import NS
