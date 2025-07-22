@@ -519,6 +519,10 @@ class GenPython:
         
         for match in matches:
             match_tp = match.rule.s.model.triple_at(0)
+            # for recursive rules (referring to themselves)
+            # rename vars in match tp to avoid overlap with this tp (both are same tp!)
+            match_tp = Triple(*[Var(f"{t.name}_m") if t.type() == Terms.VAR else t for t in match_tp])
+            
             fn_call = FnCall(self.bld.ref(match.rule_fn))
             
             # (copy ctu_call as different calls may require different conditions for it)

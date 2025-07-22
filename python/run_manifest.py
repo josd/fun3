@@ -90,7 +90,6 @@ def run_manifest(path, test, system, what, logger, verbose, main=False):
                 this_total_num, this_noncompl_num = run_manifest(path, test, system, what, logger, verbose)
                 recur_total_num += this_total_num
                 recur_noncompl_num += this_noncompl_num
-                # break
         # test entries
         entr = g.value(mf, MF.entries)
         if entr is not None:
@@ -104,7 +103,6 @@ def run_manifest(path, test, system, what, logger, verbose, main=False):
                 is_compl = run_test(g, el, system, what, verbose)
                 if not is_compl: noncompl_num += 1
                 total_num += 1
-                # break
     
     if what == 'run':
         recur_total_num += total_num
@@ -192,7 +190,7 @@ def do_test_fun3(name, query, rules, data, what, verbose):
         case 'run':
             return run_py(Path(query), Path(rules), Path(data), print_code=verbose)
 
-        case 'generate':
+        case 'gen':
             rules_path = Path(rules)
             out_path = Path(rules_path.parent, f"{name}.py").absolute() #rules_path.stem + ".py").absolute()
             save_py(Path(query), Path(rules), Path(data), out_path, print_code=verbose)
