@@ -1,13 +1,8 @@
 # Processed by EYE v11.19.7 (2025-06-01)
-# eye --quiet /Users/wvw/git/n3/fun3/python/tests-manifest/recur/recur_1.n3 /Users/wvw/git/n3/fun3/python/tests-manifest/recur/recur_1-data.n3 --query /Users/wvw/git/n3/fun3/python/tests-manifest/recur/recur_1-query_eye.n3 --nope
+# eye --quiet /Users/wvw/git/n3/fun3/python/tests-manifest/gterm/ungraph3.n3 /Users/wvw/git/n3/fun3/python/tests-manifest/gterm/ungraph3-data.n3 --query /Users/wvw/git/n3/fun3/python/tests-manifest/gterm/ungraph3-query2_eye.n3 --nope
 
 @prefix : <http://example.org/>.
 
-:will :descendantOf :paul.
-:paul :descendantOf :edward.
-:edward :descendantOf :peter.
-:will :descendantOf :edward.
-:will :descendantOf :peter.
-:paul :descendantOf :peter.
-# 2025-07-22T12:39:33.399Z in=6 out=6 ent=6 step=6 brake=1 inf=31467 sec=0.024 inf/sec=1311125
+:robocop :partType :machine.
+# 2025-07-28T16:18:43.730Z in=4 out=1 ent=1 step=1 brake=1 inf=30826 sec=0.025 inf/sec=1233040
 # ENDS

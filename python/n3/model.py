@@ -52,6 +52,9 @@ class Model:
         #     # print("t -", t)
         #     ctu(t.s, t.p, t.o)
     
+    def __hash__(self):
+        return hash(self.__triples)
+    
     def __eq__(self, other):
         if not isinstance(other, Model):
             return False # NotImplemented

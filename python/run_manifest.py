@@ -181,10 +181,10 @@ def do_test_fun3(name, query, rules, data, what, trace, verbose):
         case 'gen':
             rules_path = Path(rules)
             out_path = Path(rules_path.parent, f"{name}.py").absolute() #rules_path.stem + ".py").absolute()
-            save_py(Path(query), Path(rules), Path(data), out_path, print_code=verbose)
+            save_py(Path(query), Path(rules), Path(data), out_path, print_code=verbose, code_dir="../..")
             if trace:
                 add_tracer(out_path)
-            add_rel_import(out_path)
+            # add_rel_import(out_path)
 
 def compare_with(out_str, ref_path):
     with open(ref_path, 'r') as ref_fh:

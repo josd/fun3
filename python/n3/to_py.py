@@ -27,13 +27,16 @@ def run_py(query, rules, data, print_code=False):
     exec_ret = __get_exec(mod)
     return __exec_query(exec_ret, query)
        
-def save_py(query, rules, data, out_path, print_code=False):
+def save_py(query, rules, data, out_path, print_code=False, code_dir=False):
     query, rules, data = __proc_inputs(query, rules, data)
     
     mod = gen_py(rules, query, data)
     unparsed = unparse(mod)
     if print_code:
         print(unparsed)
+    
+    if code_dir:
+        unparsed = __use_code_dir(unparsed, code_dir)
     
     with open(out_path, 'w') as fh:
         fh.write(unparsed)
@@ -63,3 +66,9 @@ def __exec_query(exec_ret, query):
     query_fn(*[ANY for _ in variables], lambda *args: out.append(str(query.instantiate({ var: args[idx] for idx, var in enumerate(variables) }))))
     
     return "\n".join(out)
+
+def __use_code_dir(code, parent_dir):
+    return f"""import sys # noqa
+sys.path.insert(0, "{parent_dir}") # noqa
+
+""" + code

@@ -127,11 +127,14 @@ class Iri(ConcreteNode):
             case 'ln': return Iri.get_ln(self.iri)
             case _: raise AttributeError(f"unknown attribute: {name}")
             
+    def __hash__(self):
+        return hash(self.iri)
+        
     def __eq__(self, other):  
         if other.type()==Terms.VAR or other.is_any():
             return True
         if not isinstance(other, Iri):
-            return False # NotImplemented
+            return False
         return self.iri == other.iri
         
     def __str__(self):
@@ -165,11 +168,14 @@ class Literal(ConcreteNode):
     def idx_val(self):
         return self.value
         
+    def __hash__(self):
+        return hash(self.value)
+        
     def __eq__(self, other):
         if other.type()==Terms.VAR or other.is_any():
             return True
         if not isinstance(other, Literal):
-            return False # NotImplemented
+            return False
         return self.value == other.value
         
     def __str__(self):
@@ -249,10 +255,22 @@ class BlankNode(VariableNode):
     def idx_val(self):
         return self.label
     
-    # needed for unification
-    # (blank node only matches var nodes)
-    def __eq__(self, other):
+    # based on jena
+    def __hash__(self):
+        prime = 31
+        result = prime + hash(self.label)
+        return result
+    
+    # (treats bnode as a data term)
+    def __eq__(self, other):    
         return not other.is_concrete()
+    
+        # if not other.is_concrete() or other.is_any():
+        #     return True
+        # if not isinstance(other, BlankNode):
+        #     return False
+        # return self.label == other.label
+        
         
     def __str__(self):
         return f"_:{self.label}"
@@ -493,11 +511,14 @@ class Collection(Container):
     def __setitem__(self, key, value):
         self.__elements[key] = value
     
+    def __hash__(self):
+        return hash(tuple(self.__elements))
+    
     def __eq__(self, other):
         if not other.is_concrete() or other.is_any():
             return True
         if not isinstance(other, Collection):
-            return False # NotImplemented
+            return False
         return self.__elements == other.__elements
         
     def __str__(self):
@@ -549,11 +570,14 @@ class GraphTerm(Container):
     def __getitem__(self, key):
         return self.model.triple_at(key)
     
+    def __hash__(self):
+        return hash(self.model)
+    
     def __eq__(self, other):
         if not other.is_concrete() or other.is_any():
             return True
         if not isinstance(other, GraphTerm):
-            return False # NotImplemented
+            return False
         return self.model == other.model
         
     def __str__(self):
@@ -605,9 +629,13 @@ class Triple(VarComposite):
             case 2: self.o = value
             case _: raise "inconceivable!"
     
+    # based on jena
+    def __hash__(self):
+        return (hash(self.s) >> 1 ^ hash(self.p) ^ hash(self.o) << 1)
+    
     def __eq__(self, other):
         if not isinstance(other, Triple):
-            return False # NotImplemented
+            return False
         return self.s == other.s and self.p == other.p and self.o == other.o
     
     def __str__(self):
