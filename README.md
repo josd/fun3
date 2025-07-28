@@ -99,7 +99,7 @@ Blank nodes in the rule body are more useful: they can be passed to subsequent t
 But, similarly, they are not accessible in the rule head.
 
 Practically, this means:
-- Rule functions don't have parameters for bnodes in their rule head or body. So, they don't accept or return arguments for them.
+- Rule functions don't have parameters for bnodes in their rule head. So, they don't accept or return arguments for them.
 - However, bnodes in a body triple are passed to subsequent body triples. This means the corresponding function for the body triple _will_ have parameters for it.
 
 Re unification:
@@ -110,12 +110,9 @@ So, by analogy, bnodes should be treated as concrete terms in the rule head.
 - If the clause term is a bnode, it is simply treated as a universal variable.
 
 # TODO
-√ to_py: also accept data paths (instead of just strings)
-
-√ unbound universals being returned
-
-√ graph terms
-https://github.com/william-vw/jen3/blob/master/testing/N3/jen3_reason/misc/formula1.n3
+- test hash impl's
+- test where bnodes should & should not unify across rules (from paper)
+    bnode.__eq__ works for data triples
 
 duplicate statements being returned
 
