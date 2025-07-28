@@ -391,6 +391,7 @@ class GenPython:
     def __gen_rule_python(self, rules, query, call_query):
         self.code_imports.append(self.bld.import_from('n3.objects', ['ANY', 'Terms', 'Iri', 'Var', 'Literal', 'Collection', 'GraphTerm', 'Triple']))
         self.code_imports.append(self.bld.import_from('n3.ns', ['NS']))
+        self.code_imports.append(self.bld.import_from('lib.emit', ['emit']))
         
         query_fn = self.__gen_rule(QueryFn(query))
         
@@ -566,11 +567,13 @@ class GenPython:
         ret_args = rule_fn.input_vars
         
         lmbda_params = ret_args
-        inst_triple_call = self.bld.fn_call(
-            self.bld.attr_ref_expr(self.bld.triple(head_triple), 'instantiate'),
-            [ self.bld.dct([self.bld.cnst(arg) for arg in ret_args], [self.bld.ref(arg) for arg in ret_args]) ]
-        )
-        lmbda_body = self.bld.fn_call(self.bld.ref('print'), [ inst_triple_call ])
+        # inst_triple_call = self.bld.fn_call(
+        #     self.bld.attr_ref_expr(self.bld.triple(head_triple), 'instantiate'),
+        #     [ self.bld.dct([self.bld.cnst(arg) for arg in ret_args], [self.bld.ref(arg) for arg in ret_args]) ]
+        # )
+        lmbda_body = self.bld.fn_call(self.bld.ref('emit'), [ self.bld.triple(head_triple), 
+                                                             self.bld.dct([self.bld.cnst(arg) for arg in ret_args], 
+                                                                          [self.bld.ref(arg) for arg in ret_args]) ])
         lmbda_ctu = self.bld.lmbda(lmbda_params, lmbda_body)
         
         args = [ self.bld.val(ANY) for _ in ret_args ] + [ lmbda_ctu ]

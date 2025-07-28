@@ -4,6 +4,7 @@ sys.path.insert(0, "../..") # noqa
 from n3.parse import parse_n3_file
 from n3.objects import ANY, Terms, Iri, Var, Literal, Collection, GraphTerm, Triple
 from n3.ns import NS
+from lib.emit import emit
 data = parse_n3_file('/Users/wvw/git/n3/fun3/python/tests-manifest/gterm/ggraph1-data.n3').data
 
 def query(a_0, xl_1, final_ctu):
@@ -22,4 +23,4 @@ def rule_1(q_5, final_ctu):
 
 def rule_1_1(q_5, part_6, final_ctu):
     data.find(part_6, NS.rdf['type'], Iri('http://example.org/machine'), lambda s, p, o: final_ctu(q_5))
-query(ANY, ANY, lambda a_0, xl_1: print(Triple(Var('a_0'), Iri('http://example.org/partLabel'), Var('xl_1')).instantiate({'a_0': a_0, 'xl_1': xl_1})))
+query(ANY, ANY, lambda a_0, xl_1: emit(Triple(Var('a_0'), Iri('http://example.org/partLabel'), Var('xl_1')), {'a_0': a_0, 'xl_1': xl_1}))

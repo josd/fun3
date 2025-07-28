@@ -262,14 +262,12 @@ class BlankNode(VariableNode):
         return result
     
     # (treats bnode as a data term)
-    def __eq__(self, other):    
-        return not other.is_concrete()
-    
-        # if not other.is_concrete() or other.is_any():
-        #     return True
-        # if not isinstance(other, BlankNode):
-        #     return False
-        # return self.label == other.label
+    def __eq__(self, other):        
+        if other.type() == Terms.VAR or other.is_any():
+            return True
+        if not isinstance(other, BlankNode):
+            return False
+        return self.label == other.label
         
         
     def __str__(self):
@@ -515,7 +513,7 @@ class Collection(Container):
         return hash(tuple(self.__elements))
     
     def __eq__(self, other):
-        if not other.is_concrete() or other.is_any():
+        if other.type() == Terms.VAR or other.is_any():
             return True
         if not isinstance(other, Collection):
             return False
@@ -574,7 +572,7 @@ class GraphTerm(Container):
         return hash(self.model)
     
     def __eq__(self, other):
-        if not other.is_concrete() or other.is_any():
+        if other.type() == Terms.VAR or other.is_any():
             return True
         if not isinstance(other, GraphTerm):
             return False

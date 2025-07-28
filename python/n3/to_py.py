@@ -27,7 +27,7 @@ def run_py(query, rules, data, print_code=False):
     exec_ret = __get_exec(mod)
     return __exec_query(exec_ret, query)
        
-def save_py(query, rules, data, out_path, print_code=False, code_dir=False):
+def save_py(query, rules, data, out_path, print_code=False, add_tracing=False, code_dir=False):
     query, rules, data = __proc_inputs(query, rules, data)
     
     mod = gen_py(rules, query, data)
@@ -35,6 +35,9 @@ def save_py(query, rules, data, out_path, print_code=False, code_dir=False):
     if print_code:
         print(unparsed)
     
+    if add_tracing:
+        unparsed = __add_tracing(unparsed)
+        
     if code_dir:
         unparsed = __use_code_dir(unparsed, code_dir)
     
@@ -71,4 +74,10 @@ def __use_code_dir(code, parent_dir):
     return f"""import sys # noqa
 sys.path.insert(0, "{parent_dir}") # noqa
 
+""" + code
+
+# assumed that code_dir will point to folder with "lib/trace"
+def __add_tracing(code):
+    return """from lib.trace import trace_calls # noqa
+sys.settrace(trace_calls) # noqa
 """ + code

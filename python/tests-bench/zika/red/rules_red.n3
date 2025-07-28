@@ -20,9 +20,9 @@ PREFIX zk: <http://example.org/zika#>
 { ?p zk:isPregnant true } <= {
     ?p a fh:Patient .
     ?p ut:hasCondition ?c .    
-    # ?c fh:code ?ccode . ?ccode ut:hasCodeValue 77386006 . # (SNOMED) pregnancy
-    # ?c fh:clinicalStatus ?cstatus . ?cstatus ut:hasCodeValue "active" .
-    # ?c fh:verificationStatus ?vstatus . ?vstatus ut:hasCodeValue "confirmed" .
+    ?c fh:code ?ccode . ?ccode ut:hasCodeValue 77386006 . # (SNOMED) pregnancy
+    ?c fh:clinicalStatus ?cstatus . ?cstatus ut:hasCodeValue "active" .
+    ?c fh:verificationStatus ?vstatus . ?vstatus ut:hasCodeValue "confirmed" .
 } .
 
 # { ?p zk:hasZikaSymptom ?c } <= {
@@ -44,10 +44,10 @@ PREFIX zk: <http://example.org/zika#>
     ?r fh:subject ?id .
 } .
 
-# { ?r ut:hasCodeValue ?c } <= { 
-#     ?r fh:coding ?cod . 
-#     ?cod fh:code ?c 
-# } .
+{ ?r ut:hasCodeValue ?c } <= { 
+    ?r fh:coding ?cod . 
+    ?cod fh:code ?c 
+} .
 
 { ?p ut:hasCondition ?c } <= {
     ?p ut:has ?c .

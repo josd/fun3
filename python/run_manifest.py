@@ -1,6 +1,7 @@
 # python run_manifest.py --system eye --manifest tests-manifest/gterm/manifest-gterm.ttl
 # python run_manifest.py --system eye --manifest tests-manifest/gterm/manifest-gterm.ttl --test ggraph1
 
+# python run_manifest.py --system fun3 --what run --manifest tests-manifest/manifest.ttl
 # python run_manifest.py --system fun3 --what run --manifest tests-manifest/gterm/manifest-gterm.ttl
 # python run_manifest.py --system fun3 --what gen --manifest tests-manifest/gterm/manifest-gterm.ttl
 # python run_manifest.py --system fun3 --what gen --manifest tests-manifest/gterm/manifest-gterm.ttl --test ggraph1

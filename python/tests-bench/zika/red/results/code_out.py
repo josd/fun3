@@ -4,23 +4,8 @@ sys.path.insert(0, "../../../..") # noqa
 from n3.parse import parse_n3_file
 from n3.objects import ANY, Terms, Iri, Var, Literal, Collection, GraphTerm, Triple
 from n3.ns import NS
+from lib.emit import emit
 data = parse_n3_file('/Users/wvw/git/n3/fun3/python/tests-bench/zika/red/data_red_0pt2_mini.n3').data
-
-emitted = set()
-def emit(t, inst_dict):
-    global emitted
-    t = t.instantiate(inst_dict)
-    
-    # t_str = str(t)
-    # if t_str not in emitted:
-    #     print(t_str)
-    #     emitted.add(t_str)
-        
-    if t not in emitted:
-        print(t)
-        emitted.add(t)
-    else:
-        print("skipping duplicate")
 
 def query(x_0, final_ctu):
     data.find(x_0, Iri('http://example.org/zika#testForZika'), Literal(True, NS.xsd['boolean']), lambda s, p, o: final_ctu(s))
@@ -80,4 +65,3 @@ def rule_4(p_14, c_15, final_ctu):
 def rule_4_1(p_14, c_15, final_ctu):
     data.find(c_15, NS.rdf['type'], Iri('http://hl7.org/fhir/Condition'), lambda s, p, o: final_ctu(p_14, s))
 query(ANY, lambda x_0: emit(Triple(Var('x_0'), Iri('http://example.org/zika#testForZika'), Literal(True, NS.xsd['boolean'])), {'x_0': x_0}))
-print("# results:", len(emitted))

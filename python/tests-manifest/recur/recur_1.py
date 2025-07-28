@@ -1,10 +1,10 @@
 import sys # noqa
-import pathlib # noqa
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent.resolve())) # noqa
+sys.path.insert(0, "../..") # noqa
 
 from n3.parse import parse_n3_file
 from n3.objects import ANY, Terms, Iri, Var, Literal, Collection, GraphTerm, Triple
 from n3.ns import NS
+from lib.emit import emit
 data = parse_n3_file('/Users/wvw/git/n3/fun3/python/tests-manifest/recur/recur_1-data.n3').data
 
 def query(x_0, y_1, final_ctu):
@@ -22,4 +22,4 @@ def rule_1_1(x_4, z_5, y_6, final_ctu):
     data.find(y_6, Iri('http://example.org/descendantOf'), z_5, lambda s, p, o: final_ctu(x_4, o))
     rule_0(y_6, z_5, lambda x_2_m, y_3_m: final_ctu(x_4, y_3_m))
     rule_1(y_6, z_5, lambda x_4_m, z_5_m: final_ctu(x_4, z_5_m))
-query(ANY, ANY, lambda x_0, y_1: print(Triple(Var('x_0'), Iri('http://example.org/descendantOf'), Var('y_1')).instantiate({'x_0': x_0, 'y_1': y_1})))
+query(ANY, ANY, lambda x_0, y_1: emit(Triple(Var('x_0'), Iri('http://example.org/descendantOf'), Var('y_1')), {'x_0': x_0, 'y_1': y_1}))
