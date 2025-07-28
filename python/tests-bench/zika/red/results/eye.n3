@@ -3,15 +3,19 @@
 
 PREFIX zk: <http://example.org/zika#>
 
-"Patient/p1092" zk:testForZika true.
 "Patient/p1093" zk:testForZika true.
 "Patient/p1095" zk:testForZika true.
 "Patient/p1096" zk:testForZika true.
 "Patient/p1100" zk:testForZika true.
-"Patient/p1101" zk:testForZika true.
 "Patient/p1102" zk:testForZika true.
-"Patient/p1103" zk:testForZika true.
-"Patient/p1105" zk:testForZika true.
-"Patient/p1107" zk:testForZika true.
-# 2025-07-28T16:28:42.121Z in=326 out=10 ent=10 step=13 brake=1 inf=481913 sec=0.056 inf/sec=8605589
+"Patient/p1139" zk:testForZika true.
+"Patient/p1141" zk:testForZika true.
+"Patient/p1146" zk:testForZika true.
+"Patient/p1151" zk:testForZika true.
+"Patient/p1153" zk:testForZika true.
+"Patient/p1162" zk:testForZika true.
+"Patient/p1170" zk:testForZika true.
+"Patient/p1173" zk:testForZika true.
+"Patient/p1174" zk:testForZika true.
+# 2025-07-28T18:56:57.471Z in=1230 out=14 ent=14 step=14 brake=1 inf=1676267 sec=0.130 inf/sec=12894362
 # ENDS
