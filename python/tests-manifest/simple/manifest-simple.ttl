@@ -10,7 +10,7 @@
 
 <>  rdf:type mf:Manifest ;
     rdfs:label "simple test cases" ;
-    mf:entries ( :only_data_find :call_rules :call_rules2 :call_rules3 :call_rules4 :call_rules5 :backward ) .
+    mf:entries ( :only_data_find :call_rules :call_rules2 :call_rules3 :call_rules4 :call_rules5 :backward :backward_more) .
 
 :only_data_find 
     a   test:TestN3Query ;
@@ -128,5 +128,23 @@
     ] ;
     rdfs:comment "" ;
     dc:source <https://github.com/eyereasoner/eye/blob/master/reasoning/backward/> ;
+    rdft:approval rdft:Approved ;
+    test:options [ test:conclusions "true"^^xsd:boolean ] .
+
+
+:backward_more
+    a   test:TestN3Query ;
+    a   test:TestN3Positive ;
+    mf:name "backward_more" ;
+    mf:action [ 
+        qt:query <backward_more-query.n3> ;
+        test:rules <backward_more.n3> ;
+        qt:data <backward_more.ttl>
+    ] ;
+    mf:result [
+        qt:data <backward_more-ref.n3>
+    ] ;
+    rdfs:comment "" ;
+    dc:source <https://github.com/eyereasoner/eye/blob/master/reasoning/backward-more/> ;
     rdft:approval rdft:Approved ;
     test:options [ test:conclusions "true"^^xsd:boolean ] .

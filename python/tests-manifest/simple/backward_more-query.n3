@@ -1,0 +1,8 @@
+@prefix : <http://example.org/#>.
+
+:A :moreInterestingThan :B.
+:A :moreInterestingThan :C.
+:D :moreInterestingThan :B.
+:C :moreInterestingThan :A.
+_:Who :moreInterestingThan :C.
+_:X :moreInterestingThan _:Y.

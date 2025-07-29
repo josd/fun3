@@ -1,0 +1,12 @@
+@prefix : <http://example.org/#>.
+
+# Scores (ground facts)
+:A :score 8.
+:B :score 5.
+
+# Base edge to enable A > C by transitivity (no score for C):
+:B :moreInterestingThan :C.
+
+# Contextual facts for the award/boring rule: D > B
+:D :hasAward true.
+:B :boring true.

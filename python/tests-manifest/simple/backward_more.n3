@@ -1,0 +1,32 @@
+# ---------------------
+# Backward rule example
+# ---------------------
+
+@prefix math: <http://www.w3.org/2000/10/swap/math#>.
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix : <http://example.org/#>.
+
+# R1: by score
+{
+    ?X :moreInterestingThan ?Y.
+} <= {
+    ?X :score ?SX.
+    ?Y :score ?SY.
+    ?SX math:greaterThan ?SY.
+}.
+
+# R2: award/boring context
+{
+    ?X :moreInterestingThan ?Y.
+} <= {
+    ?X :hasAward true.
+    ?Y :boring true.
+}.
+
+# R3: transitivity (recursive)
+{
+    ?X :moreInterestingThan ?Z.
+} <= {
+    ?X :moreInterestingThan ?Y.
+    ?Y :moreInterestingThan ?Z.
+}.
